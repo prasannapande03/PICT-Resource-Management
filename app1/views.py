@@ -25,59 +25,23 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
-# from django.views.decorators.csrf import ensure_csrf_cookie
-
-# class RegisterAPI(APIView):
-#     def post(self,request):
-#         try:
-#             data=request.data
-#             serializer=PasswordResetSerializer(data=data)
-#             if serializer.is_valid():
-#                 user_mail=User.objects.filter(email=serializer.validated_data['email'])
-#                 if user_mail:
-#                     serializer.save()
-#                     print("account exists")
-#                     send_otp_via_email(serializer.data['email'])
-#                     return Response({
-#                         'status':200,
-#                         'message':'please check mail',
-#                         'data':serializer.data, 
-#                     })
-                
-            
-#                 return Response({
-#                     'status':400,
-#                     'message':'something went wrong',
-#                     'data':'Account with this mail does not exist',
-
-#                 })
-#             # print("87909")
-#             return Response({
-#                     'status':400,
-#                     'message':'something went wrong',
-#                     'data':serializer.errors,
-
-#                 })
-            
-#         except Exception as e:
-#             # print("123s")
-#             print(e)
-#             return Response({'key': 'value'}, status=status.HTTP_200_OK)
-        
 class VerifyOTPOnly(APIView):
 #verifying otp for pass reset
     def post(self, request):
-      
+        # self refers to the instance of a class and request is an object that contains the metadata about the request
+
         data=request.data
+
+        # deserializing the data input by the user
         serializer=VerifyOTPOnlySerializer(data=data)
-       
+
         if serializer.is_valid():
-            
+
             otp=serializer.data['otp']
             email = serializer.data['mail']
             # serializer.data['mail']=email
             user=User.objects.get(email=email)
-            
+
             if not user:
                 return Response({
                 'status':400,
@@ -103,31 +67,34 @@ class VerifyOTPOnly(APIView):
                 'data':'Resend OTP',
 
             })
-            
+
             return Response({
             'status':status.HTTP_200_OK,
             'message':'Account verified',
             })
-        
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-            
+
         # except Exception as e:
         #     return Response({'key': 'value'}, status=status.HTTP_200_OK)
-        
+
 class VerifyOTP(APIView):
 #verifying otp for pass reset
     def post(self, request, email):
-      
+        # self refers to the instance of a class and request is an object that contains the metadata about the request
+
         data=request.data
+
+        # deserializing the data input by the user
         serializer=VerifyOTPSerializer(data=data)
-       
+
         if serializer.is_valid():
-            
+
             otp=serializer.data['otp']
             new_p = serializer.data['new_password']
             # serializer.data['mail']=email
             user=User.objects.get(email=email)
-            
+
             if not user:
                 return Response({
                 'status':status.HTTP_400_BAD_REQUEST,
@@ -160,42 +127,41 @@ class VerifyOTP(APIView):
             user.save()
 
             print(user.password)
-            
+
             return Response({
             'status':status.HTTP_200_OK,
             'message':'Account verified',
             })
 
 
-        
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-            
+
         # except Exception as e:
         #     return Response({'key': 'value'}, status=status.HTTP_200_OK)
-        
+
 class VerifyEmail(APIView):
-   
+
     def get_object(self, queryset=None):
         return self.request.user
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         serializer = EmailVerificationSerializer(data=request.data)
-        print("!23")
+
         if serializer.is_valid():
-            print("8977")
             user=User.objects.filter(email=serializer.validated_data['mail'])
             if user:
-                print("ll ")
-                print(serializer.validated_data['mail'])
+                # print("ll ")
+                # print(serializer.validated_data['mail'])
                 send_otp_via_email(serializer.validated_data['mail'])
 
-                
+
                 return Response({
                     'status':status.HTTP_200_OK,
                     'message':'email sent',
                     'data':serializer.data,
-                })
+                })      
 
             #user with that mail does not exist
             return Response({
@@ -204,7 +170,7 @@ class VerifyEmail(APIView):
                     'data':'Account with this mail does not exist',
 
                 })
-            
+
         return Response({
                     'status':status.HTTP_400_BAD_REQUEST,
                     'message':'something went wrong',
@@ -212,12 +178,12 @@ class VerifyEmail(APIView):
 
                 })
 
-    
+
 class SignIn(APIView):
-   
+
     def get_object(self, queryset=None):
         return self.request.user
-    
+
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
 
@@ -227,13 +193,13 @@ class SignIn(APIView):
                     'message':'something went wrong',
                     'data':'An User already logged in',
                 })
-      
-    
+
+
         serializer = PasswordSerializer(data=request.data)
         if serializer.is_valid():
             try:
                     user=User.objects.get(email=serializer.validated_data['email'])
-                
+
                     print("k")
                     if authenticate(request, username=None, email=serializer.validated_data['email'], password=serializer.validated_data['password']):
                         login(request, user)
@@ -248,22 +214,22 @@ class SignIn(APIView):
                             'message':'Wrong password',
                         })
             except  ObjectDoesNotExist:
-                        
+
                         return Response({
                             'status':status.HTTP_400_BAD_REQUEST,
                             'message':'User with this mail does not exist',
-                        
+
                         })
-        
+
         return Response({
                     'status':status.HTTP_400_BAD_REQUEST,
                     'message':'something went wrong',
                     'data':serializer.errors,
 
                 })
-    
+
 class SignOut(APIView):
-   
+
     def get_object(self, queryset=None):
         return self.request.user
 
@@ -272,24 +238,26 @@ class SignOut(APIView):
         try:
             usr = request.user
             logout(request)
-            return Response({
-                'status':status.HTTP_200_OK,
-                'message':'User logged out',
-                'data':usr.email,
+            response = Response({
+                'status': status.HTTP_200_OK,
+                'message': 'User logged out',
+                'data': usr.email,
             })
+
+            return response
         except:
             return Response({
                     'status':status.HTTP_400_BAD_REQUEST,
                     'message':'something went wrong',
 
                 })
-    
+
 # @ensure_csrf_cookie
 class AdminMonitor(APIView):
-   
+
     def get_object(self, queryset=None):
         return self.request.user
-    
+
     def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
         user = request.user
@@ -319,7 +287,7 @@ class AdminMonitor(APIView):
                     'data':serializer.errors,
 
                 })
-    
+
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         user = request.user
@@ -327,9 +295,11 @@ class AdminMonitor(APIView):
         if serializer.is_valid():
             if user.is_admin == True:
                 temp_pass = get_random_string(length=10, allowed_chars="abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789")
+
+                send_random_password(serializer.validated_data['mail'], temp_pass)
                 usr=User.objects.create(email=serializer.validated_data['mail'], password=django_pbkdf2_sha256.hash(temp_pass), role=serializer.validated_data['role'])
                 e = usr.email
-                send_random_password(serializer.validated_data['mail'], temp_pass)
+
                 return Response({
                     'status':status.HTTP_200_OK,
                     'message':'User created. Mail Sent',
@@ -345,69 +315,71 @@ class AdminMonitor(APIView):
                     'data':serializer.errors,
 
                 })
-    
+
 class ResourceDetail(APIView):
-   
+
     def get_object(self, queryset=None):
         return self.request.user
 
     #Deatils of the booked session of a resource for 6 days after a particular date.
+    print("here 1")
+    # @method_decorator(csrf_exempt)
     def put(self, request, resource, *args, **kwargs):
         # self.object = self.get_object()
 
         serializer=Getdate(data=request.data)
         #returns booking of that particular resource for the next 7 days
-        if request.user.is_authenticated:
-            if serializer.is_valid():
-               
+        # if request.user.is_authenticated:
+        if serializer.is_valid():
 
-                curr_date = serializer.validated_data['date']
-                
-                # bookings_list = []
-                # list of dictionary
-                serialized_bookings = []
-        
-                for i in range (0,7):
-                    bookings=Booking.objects.filter(
-                        resource=resource,
-                        date=curr_date, 
-                        all_true = True,                   
-                    )
-                    for booking in bookings:
-                        # dictionary 
-                        serialized_booking = {
-                            'start_time': booking.start_time,
-                            'end_time': booking.end_time,
-                            'booked_by': booking.user.email,
-                        }
-                        serialized_bookings.append(serialized_booking)
-                    
-                    
-                    curr_date = curr_date + timedelta(days = 1)
 
-                
-           
-                return JsonResponse({
-                    'status': status.HTTP_200_OK,
-                    'message': 'Showing details',
-                    # 'booking_allowed': e,
-                    'bookings': serialized_bookings
-                })
-            else:
-                return Response({
-                    'status': status.HTTP_400_BAD_REQUEST,
-                    'message': 'Something went wrong',
-                    'errors': serializer.errors
-                })
-            
+            curr_date = serializer.validated_data['date']
+
+            # bookings_list = []
+            # list of dictionary
+            serialized_bookings = []
+
+            for i in range (0,7):
+                bookings=Booking.objects.filter(
+                    resource=resource,
+                    date=curr_date,
+                    all_true = True, #accepted requested (every permission in the hierarchy is complete)
+                )
+                for booking in bookings:
+                    # dictionary
+                    serialized_booking = {
+                        'start_time': booking.start_time,
+                        'end_time': booking.end_time,
+                        'booked_by': booking.user.email,
+                    }
+                    serialized_bookings.append(serialized_booking)
+
+
+                curr_date = curr_date + timedelta(days = 1)
+
+
+
+            return JsonResponse({
+                'status': status.HTTP_200_OK,
+                'message': 'Showing details',
+                # 'booking_allowed': e,
+                'bookings': serialized_bookings
+            })
         else:
             return Response({
                 'status': status.HTTP_400_BAD_REQUEST,
-                'message': 'Permission denied'
+                'message': 'Something went wrong',
+                'errors': serializer.errors
             })
-    
-        
-            
+
+        # else:
+        #     return Response({
+        #         'status': status.HTTP_400_BAD_REQUEST,
+        #         'message': 'Permission denied'
+        #     })
+
+
+
     #Booking of the resource.
     def post(self, request, resource, *args, **kwargs):
         user = request.user
@@ -421,36 +393,36 @@ class ResourceDetail(APIView):
         data['userperms'] = resource_instance
 
         serializer = BookingSerializer(data=data)
-        
+
         if serializer.is_valid():
             if user.is_authenticated:
-                  
-                bookings=Booking.objects.filter(resource=resource,date=serializer.validated_data['start_time'].date())   #doubt
+
+                bookings=Booking.objects.filter(resource=resource,date=serializer.validated_data['start_time'].date())   
                 conflict_present=False
                 for bookingg in bookings:
                     if bookingg.all_true==True:
-                        if serializer.validated_data['start_time']>=bookingg.start_time and serializer.validated_data['start_time']<=bookingg.end_time: 
+                        if serializer.validated_data['start_time']>=bookingg.start_time and serializer.validated_data['start_time']<=bookingg.end_time:
                             print("already booked")
                             conflict_present=True
                             break
-                          
 
-                        elif serializer.validated_data['end_time']>=bookingg.start_time and serializer.validated_data['end_time']<=bookingg.end_time: 
+
+                        elif serializer.validated_data['end_time']>=bookingg.start_time and serializer.validated_data['end_time']<=bookingg.end_time:
                             print("already booked")
                             conflict_present=True
                             break
-                           
+
                         elif serializer.validated_data['start_time']<=bookingg.start_time and serializer.validated_data['end_time']>=bookingg.end_time:
                             print("already booked")
                             conflict_present=True
                             break
-               
+
                 if not conflict_present:
                     # curr_start_time=data['start_time']
                     # curr_end_time=data['end_time']
-            
+
                     serializer.save()
-                            
+
 
                     return Response({
                         'status': status.HTTP_200_OK,
@@ -458,7 +430,7 @@ class ResourceDetail(APIView):
                         # 'booking_id': bookingg.booking_id
                     })
                 else:
-                    
+
                     return Response({
                         'status': status.HTTP_400_BAD_REQUEST,
                         'message': 'Conflicting Requests',
@@ -469,87 +441,87 @@ class ResourceDetail(APIView):
                 return Response({
                     'status': status.HTTP_400_BAD_REQUEST,
                     'message': 'User Not Authencticated',
-                    
+
                 })
 
-        
+
         else:
             return Response({
                 'status': status.HTTP_400_BAD_REQUEST,
                  'message': 'Something went wrong',
                 'errors': serializer.errors
             })
-        user = request.user
-        data = request.data.copy()
-        data['user'] = user.id
-        # data.res
-        data['resource'] = resource
+        # user = request.user
+        # data = request.data.copy()
+        # data['user'] = user.id
+        # # data.res
+        # data['resource'] = resource
 
-        resource = Resource.objects.get(pk=resource)
-        resource_instance = resource.userperms
-        data['userperms'] = resource_instance
-        data['date']=data['start_time'].date()
+        # resource = Resource.objects.get(pk=resource)
+        # resource_instance = resource.userperms
+        # data['userperms'] = resource_instance
+        # data['date']=data['start_time'].date()
 
-        serializer = BookingSerializer(data=data)
-        
-        if serializer.is_valid():
-            if user.is_authenticated:
-                # booking = serializer.save()/  
-                bookings=Booking.objects.filter(resource=resource,date=data['date'])   #doubt
-                conflict_present=False
-                for bookingg in bookings:
-                    if bookingg.all_true==True:
-                        if data['start_time']>=bookingg.start_time and data['start_time']<=bookingg.end_time: 
-                            print("already booked")
-                            conflict_present=True
-                            break
-                          
+        # serializer = BookingSerializer(data=data)
 
-                        elif data['end_time']>=bookingg.start_time and data['end_time']<=bookingg.end_time: 
-                            print("already booked")
-                            conflict_present=True
-                            break
-                           
-                        elif data['start_time']<=bookingg.start_time and data['end_time']>=bookingg.end_time:
-                            print("already booked")
-                            conflict_present=True
-                            break
-               
-                if conflict_present:
-                    curr_start_time=data['start_time']
-                    curr_end_time=data['end_time']
-                    resource_head=resource.resource_head
+        # if serializer.is_valid():
+        #     if user.is_authenticated:
+        #         # booking = serializer.save()/
+        #         bookings=Booking.objects.filter(resource=resource,date=data['date'])   #doubt
+        #         conflict_present=False
+        #         for bookingg in bookings:
+        #             if bookingg.all_true==True:
+        #                 if data['start_time']>=bookingg.start_time and data['start_time']<=bookingg.end_time:
+        #                     print("already booked")
+        #                     conflict_present=True
+        #                     break
 
-                    print(resource_head) 
-                            
 
-                    return Response({
-                        'status': status.HTTP_200_OK,
-                        'message': 'Permission Created',
-                        'booking_id': bookingg.booking_id
-                    })
-                else:
-                    return Response({
-                        'status': status.HTTP_200_OK,
-                        'message': 'Conflicting Requests',
-                        # 'booking_id': bookingg.booking_id
-                    })
+        #                 elif data['end_time']>=bookingg.start_time and data['end_time']<=bookingg.end_time:
+        #                     print("already booked")
+        #                     conflict_present=True
+        #                     break
 
-            else:
-                return Response({
-                    'status': status.HTTP_200_OK,
-                    'message': 'User Not Authencticated',
-                    
-                })
+        #                 elif data['start_time']<=bookingg.start_time and data['end_time']>=bookingg.end_time:
+        #                     print("already booked")
+        #                     conflict_present=True
+        #                     break
 
-        
-        else:
-            return Response({
-                'status': status.HTTP_400_BAD_REQUEST,
-                 'message': 'Something went wrong',
-                'errors': serializer.errors
-            })
-           
+        #         if conflict_present:
+        #             curr_start_time=data['start_time']
+        #             curr_end_time=data['end_time']
+        #             resource_head=resource.resource_head
+
+        #             print(resource_head)
+
+
+        #             return Response({
+        #                 'status': status.HTTP_200_OK,
+        #                 'message': 'Permission Created',
+        #                 'booking_id': bookingg.booking_id
+        #             })
+        #         else:
+        #             return Response({
+        #                 'status': status.HTTP_200_OK,
+        #                 'message': 'Conflicting Requests',
+        #                 # 'booking_id': bookingg.booking_id
+        #             })
+
+        #     else:
+        #         return Response({
+        #             'status': status.HTTP_200_OK,
+        #             'message': 'User Not Authencticated',
+
+        #         })
+
+
+        # else:
+        #     return Response({
+        #         'status': status.HTTP_400_BAD_REQUEST,
+        #          'message': 'Something went wrong',
+        #         'errors': serializer.errors
+        #     })
+
             # # to upate partially we pass instance as a paramter
             # serializer=acceptrequestSerializer(booking_instance,data=request.data)
             # if serializer.is_valid():
@@ -561,7 +533,7 @@ class ResourceDetail(APIView):
             #         print("hello")
             #         # curr_ind+=1
             #         # percent=0
-                    
+
             #         for item in booking_instance.list:
             #            if item==True:
             #                cnt+=1
@@ -581,9 +553,9 @@ class ResourceDetail(APIView):
             #         # booking_instance.list.append(False)
             #         booking_instance.delete()
             #         # serializer.save()
-               
+
             # return  Response(serializer.errors, status=400)
-        
+
         # else:
         #     return Response({"message": "User is not authenticated or does not have the required role."}, status=403)
 class AcceptRequest(APIView):
@@ -593,13 +565,13 @@ class AcceptRequest(APIView):
         heirarchy_list=booking_instance.resource.userperms
         r_name=booking_instance.resource.resource_name
         # print(heirarchy_list[curr_ind])
-        
+
         if request.user.is_authenticated and booking_instance.all_true==False and request.user.email==heirarchy_list[booking_instance.curr_index]:
             # user_instance=User.objects.get(pk=request.user.id)
-            
+
             try:
                 booking_instance = Booking.objects.get(pk=booking_id)
-                
+
 
                 booking_instance.curr_index +=1
 
@@ -608,35 +580,46 @@ class AcceptRequest(APIView):
                     email=booking_instance.user.email
                     resource=booking_instance.resource.resource_name
                     booking_instance.all_true=True
-                    RequestAcceptedMail(email,resource,date)
+                    RequestAcceptedMail(email,resource,date, booking_id)
 
                     bookings=Booking.objects.filter(resource=r_name,date=booking_instance.date)#doubt
 
+                    #deleting the other requests which are in queue but are conflicting with the current accepted request
                     for booking in bookings:
-                        if booking.start_time>=booking_instance.start_time and booking.start_time<=booking_instance.end_time: 
-                            RequestDeniededMail(booking.user.email,resource,booking.date)
-                            booking.delete()
+                        if booking.booking_id != booking_instance.booking_id:
+                            if booking.start_time>=booking_instance.start_time and booking.start_time<=booking_instance.end_time:
+                                print("here 0")
+                                RequestDeniededMail(booking.user.email,resource,booking.date, booking.booking_id)
+                                print("here 1")
+                                booking.delete()
+                                print("here 2")
 
-                        elif booking.end_time>=booking_instance.start_time and booking.end_time<=booking_instance.end_time:
-                            RequestDeniededMail(booking.user.email,resource,booking.date)
-                            booking.delete()
+                            elif booking.end_time>=booking_instance.start_time and booking.end_time<=booking_instance.end_time:
+                                print("here 3")
+                                RequestDeniededMail(booking.user.email,resource,booking.date, booking.booking_id)
+                                print("here 4")
+                                booking.delete()
+                                print("here 5")
 
-                        elif booking_instance.start_time>=booking.start_time and booking_instance.end_time<=booking.end_time:
-                            RequestDeniededMail(booking.user.email,resource,booking.date)
-                            booking.delete()
+                            elif booking_instance.start_time>=booking.start_time and booking_instance.end_time<=booking.end_time:
+                                print("here 6")
+                                RequestDeniededMail(booking.user.email,resource,booking.date, booking.booking_id)
+                                print("here 7")
+                                booking.delete()
+                                print("here 8")
 
 
-                    
+
                 booking_instance.save()
 
                 return Response({"message": "Accepted by current user"}, status=status.HTTP_200_OK)
 
             except Booking.DoesNotExist:
                 return Response({"message": "Booking does not exist."}, status=404)
-          
+
         else:
             return Response({"message": "User is not authenticated or does not have the required role."}, status=403)
-        
+
 class DenyRequest(APIView):
 
     def get(self,request,booking_id, *args,**kwargs):
@@ -644,31 +627,31 @@ class DenyRequest(APIView):
         try:
             booking_instance = Booking.objects.get(pk=booking_id)
             heirarchy_list=booking_instance.resource.userperms
-            
+
             date=booking_instance.date
             email=booking_instance.user.email
             resource=booking_instance.resource.resource_name
             print(heirarchy_list[booking_instance.curr_index])
             print(request.user.email)
             if request.user.is_authenticated:
-                
+
                 if request.user.email==heirarchy_list[booking_instance.curr_index]:
                     print("ikde")
                     # RequestDeniededMail(email,resource,date)
                     booking_instance.delete()
                     return Response({"message": "Request denied successfully"}, status=status.HTTP_200_OK)
-                
+
                 elif request.user==booking_instance.user:
-                    
+
                     booking_instance.delete()
-                    return Response({"message": "Request Deleted successfully"}, status=status.HTTP_200_OK)    
-                
+                    return Response({"message": "Request Deleted successfully"}, status=status.HTTP_200_OK)
+
 
 
         except:
             return Response({"message": "User is not authenticated or does not have the required role."}, status=403)
 
-        
+
 # class ViewRequests(APIView):
 #     def get(self,request, *args,**kwargs):
 #         # print(request.user.numericRoleLevel)
@@ -676,7 +659,7 @@ class DenyRequest(APIView):
 #             all_bookings = Booking.objects.all()
 #             bookings_with_userperms = [booking for booking in all_bookings if request.user.email==booking.resource.userperms[booking.curr_index]]
 #             serialized_bookings = []
-        
+
 #             for booking in bookings_with_userperms:
 #                 serialized_booking = {
 #                     'start_time': booking.start_time,
@@ -691,7 +674,7 @@ class DenyRequest(APIView):
 #                 # 'booking_allowed': e,
 #                 'bookings': serialized_bookings
 #             })
-        
+
 #         else:
 #             return Response({
 #                     'status': status.HTTP_400_BAD_REQUEST,
@@ -707,7 +690,7 @@ class PendingRequests(APIView):
 
             email=request.user.email
             bookings=Booking.objects.all()
-            
+
             requests=[]
             for booking in bookings:
                 print(booking)
@@ -726,8 +709,8 @@ class PendingRequests(APIView):
                             # 'End_time':booking.end_time.time(),
                         }
                         requests.append(booking_inst)
-            
-            
+
+
             return Response({
                 'message':'Pending Requests',
                 'data':requests
@@ -792,7 +775,7 @@ class UserRequests(APIView):
 #             date=booking.date
 #             email=booking.user.email
 #             resource=booking.resource.resource_name
-           
+
 #             return Response({
 #                 'message':'Request Deleted',
 #                 # 'data':requests
@@ -802,7 +785,7 @@ class UserRequests(APIView):
 #             return Response({
 #                 'message':'permission Denied',
 #             })
-        
+
 class UserInfo(APIView):
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
@@ -813,7 +796,8 @@ class UserInfo(APIView):
                         'organization': request.user.organization,
                         'Role':request.user.numericRoleLevel,
                         'is_admin':request.user.is_admin,
-                        
+                        'X-CSRFToken':request.COOKIES,
+
                     }
             return JsonResponse({
                 'status': 200,
@@ -825,5 +809,21 @@ class UserInfo(APIView):
                 'status': status.HTTP_400_BAD_REQUEST,
                 'message': 'Login Required'
             })
-        
-        
+
+
+# class GetCookies(APIView):
+
+#     def get_object(self, queryset=None):
+#         return self.request.user
+
+#     def get(self, request, *args, **kwargs):
+#         self.object = self.get_object()
+#         try:
+#             return Response({
+#                 'status':status.HTTP_200_OK,
+#             })
+#         except:
+#             return Response({
+#                     'status':status.HTTP_400_BAD_REQUEST,
+#                     'message':'something went wrong',
+#                 })

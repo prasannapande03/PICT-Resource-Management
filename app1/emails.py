@@ -39,14 +39,14 @@ def send_random_password(email, password):
 
     send_mail(subject, message, email_from, [email])
 
-def RequestAcceptedMail(email,resource,date):
+def RequestAcceptedMail(email,resource, date, booking_id):
     message=f'Your request for {resource} on {date} has been booked'
-    subject=f'{resource} Booked'
+    subject=f'{resource} Booked Resource - {booking_id}'
     email_from = settings.EMAIL_HOST
     send_mail(subject, message, email_from, [email])
 
-def RequestDeniededMail(email,resource,date):
-    message=f'Your request for {resource} on {date} has been denied'
+def RequestDeniededMail(email,resource,date, booking_id):
+    message=f'Your request for {resource} on {date} has been denied. Booking id {booking_id}'
     subject='Request Denied'
     email_from = settings.EMAIL_HOST
     send_mail(subject, message, email_from, [email])
