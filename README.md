@@ -20,20 +20,8 @@
 ---
 
 ## Glimpses
-- **Feature 1**: Description of the feature.
+- **Landing Page**: .
 - ![image](https://github.com/user-attachments/assets/43567d1d-685d-449e-882e-2eec8b98f8cc)
 
-- **Feature 2**: Description of another feature.
-- **Feature 3**: Description of another feature.
-
----
-
-## Getting Started
-Instructions on how to get started with the project.
-
-### Prerequisites
-Mention what tools or software are needed before installation.
-```bash
-# Example
-npm install
-pip install -r requirements.txt
+- **Calendar**:
+- ![image](https://github.com/user-attachments/assets/e41c503e-8021-4058-9317-e310d3e68cd6)
