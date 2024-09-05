@@ -29,6 +29,8 @@
 
 ## Features
 - **Feature 1**: Description of the feature.
+- ![image](https://github.com/user-attachments/assets/43567d1d-685d-449e-882e-2eec8b98f8cc)
+
 - **Feature 2**: Description of another feature.
 - **Feature 3**: Description of another feature.
 
