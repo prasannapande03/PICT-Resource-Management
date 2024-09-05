@@ -22,8 +22,8 @@
 
 ### Built With
 - **Language**: Python, JavaScript, etc.
-- **Framework**: Django, React, etc.
-- **Other Technologies**: Docker, MySQL, etc.
+- **Framework**: Django Rest Framework (DRF), React, etc.
+- **Hosting**:  Pythonanywhere for Backend and Vercel for Frontend.
 
 ---
 
