@@ -1,4 +1,4 @@
-# PICT Resource Management [Visit](https://resource-management-clientside.vercel.app/)
+# PICT Resource Management ([Visit])(https://resource-management-clientside.vercel.app/)
 
 ## Table of Contents
 1. [About the Project](#about-the-project)
