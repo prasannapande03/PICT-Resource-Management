@@ -2,15 +2,7 @@
 
 ## Table of Contents
 1. [About the Project](#about-the-project)
-2. [Features](#features)
-3. [Getting Started](#getting-started)
-   - [Prerequisites](#prerequisites)
-   - [Installation](#installation)
-4. [Usage](#usage)
-5. [Screenshots](#screenshots)
-6. [Contributing](#contributing)
-7. [License](#license)
-8. [Contact](#contact)
+2. [Glimpses](#features)
 
 ---
 
@@ -27,7 +19,7 @@
 
 ---
 
-## Features
+## Glimpses
 - **Feature 1**: Description of the feature.
 - ![image](https://github.com/user-attachments/assets/43567d1d-685d-449e-882e-2eec8b98f8cc)
 
